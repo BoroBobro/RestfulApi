@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/blogPosts")
@@ -37,13 +38,13 @@ public class BlogPostsController {
 
     // 3. GET /blogPosts/{postId}
     @GetMapping("/{postId}")
-    public BlogPost getBlogPostById(@PathVariable int postId) {
+    public BlogPost getBlogPostById(@PathVariable UUID postId) {
         return blogPostsService.findById(postId);
     }
 
     // 4. PUT /blogPosts/{postId} (+ payload)
     @PutMapping("/{postId}")
-    public BlogPost updateBlogPost(@RequestBody NewBlogPostPayload payload, @PathVariable int postId) {
+    public BlogPost updateBlogPost(@RequestBody NewBlogPostPayload payload, @PathVariable UUID postId) {
         Author author = authorsService.findById(payload.getAuthorId());
         return blogPostsService.findByIdAndUpdate(postId, payload, author);
     }
@@ -51,7 +52,7 @@ public class BlogPostsController {
     // 5. DELETE /blogPosts/{postId}
     @DeleteMapping("/{postId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteBlogPost(@PathVariable int postId) {
+    public void deleteBlogPost(@PathVariable UUID postId) {
         blogPostsService.findByIdAndDelete(postId);
     }
 }

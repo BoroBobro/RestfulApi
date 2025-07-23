@@ -3,15 +3,21 @@ package borislavk.services;
 import borislavk.entities.Author;
 import borislavk.exceptions.NotFoundException;
 import borislavk.payloads.NewAuthorPayload;
+import borislavk.repository.AuthorRep;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
 public class AuthorsService {
+
+    @Autowired
+    private AuthorRep authorRep;
 
     private List<Author> authorsDB = new ArrayList<>();
 
@@ -26,35 +32,23 @@ public class AuthorsService {
         return newAuthor;
     }
 
-    public Author findById(int authorId) {
-        for (Author author : this.authorsDB) {
-            if (author.getId() == authorId) return author;
-        }
-        throw new NotFoundException(authorId);
+    public Author findById(UUID authorId) {
+        return authorRep.findById(authorId).orElseThrow(() -> new NotFoundException("Autore con questo ID" + authorId + "non trovato"));
     }
 
-    public Author findByIdAndUpdate(int authorId, NewAuthorPayload payload) {
-        Author found = null;
-        for (Author author : this.authorsDB) {
-            if (author.getId() == authorId) {
-                found = author;
-                found.setNome(payload.getNome());
-                found.setCognome(payload.getCognome());
-                found.setEmail(payload.getEmail());
-                found.setDataDiNascita(payload.getDataDiNascita());
-                found.setAvatar("https://ui-avatars.com/api/?name=" + payload.getNome() + "+" + payload.getCognome());
-            }
-        }
-        if (found == null) throw new NotFoundException(authorId);
-        return found;
+    public Author findByIdAndUpdate(UUID authorId, NewAuthorPayload payload) {
+        Author found = this.findById(authorId);
+
+        found.setNome(payload.getNome());
+        found.setCognome(payload.getCognome());
+        found.setEmail(payload.getEmail());
+        found.setDataDiNascita(payload.getDataDiNascita());
+        found.setAvatar("https://ui-avatars.com/api/?name=" + payload.getNome() + "+" + payload.getCognome());
+        return authorRep.save(found);
     }
 
-    public void findByIdAndDelete(int authorId) {
-        Author found = null;
-        for (Author author : this.authorsDB) {
-            if (author.getId() == authorId) found = author;
-        }
-        if (found == null) throw new NotFoundException(authorId);
-        this.authorsDB.remove(found);
+    public void findByIdAndDelete(UUID authorId) {
+        Author found = this.findById(authorId);
+        authorRep.delete((found));
     }
 }
