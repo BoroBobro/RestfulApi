@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,17 +18,19 @@ public class AuthorsService {
     @Autowired
     private AuthorRep authorRep;
 
-    private List<Author> authorsDB = new ArrayList<>();
 
     public List<Author> findAll() {
-        return this.authorsDB;
+        return this.authorRep.findAll();
     }
 
     public Author saveAuthor(NewAuthorPayload payload) {
-        Author newAuthor = new Author(payload.getNome(), payload.getCognome(), payload.getEmail(), payload.getDataDiNascita());
-        this.authorsDB.add(newAuthor);
-        log.info("Autore con email " + payload.getEmail() + " salvato correttamente.");
-        return newAuthor;
+        Author newAuthor = new Author();
+        newAuthor.setNome(payload.getNome());
+        newAuthor.setCognome(payload.getCognome());
+        newAuthor.setEmail(payload.getEmail());
+        newAuthor.setDataDiNascita(payload.getDataDiNascita());
+        newAuthor.setAvatar("https://ui-avatars.com/api/?name=" + payload.getNome() + "+" + payload.getCognome());
+        return authorRep.save(newAuthor);
     }
 
     public Author findById(UUID authorId) {
